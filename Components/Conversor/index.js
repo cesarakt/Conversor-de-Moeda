@@ -1,6 +1,8 @@
+import { func } from 'prop-types';
 import React, { useState, useEffect} from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Keyboard } from 'react-native';
 
+import api from '../../assets/services/api';
 
 export default function Conversor(props){
     const [moedaBValor, setMoedaBValor] = useState(0);
@@ -10,10 +12,25 @@ export default function Conversor(props){
 
     const changeText = moedaBValor => setMoedaBValor(moedaBValor);
     const { moedaA, moedaB } = props;
+    const mostaValor = (valorConvertido === 0) ? '' : valorConvertido;
 
-    const converter = () => {
+    useEffect(() => {
+        converter();
+    }, [])
 
+    async function converter(){
+        const dePara = `${moedaA}_${moedaB}`;
+        const response = await api.get(`convert?q=${dePara}&compact=ultra&apiKey=7c5ef455b88d735bc6ad`);
+        const cotacao = response.data[dePara];
+        
+        const conversao = cotacao * moedaBValor;
+        setValorConvertido(parseFloat(conversao.toFixed(2)));
+
+
+        Keyboard.dismiss();
     }
+
+    
 
     return (
         <View style={styles.container}>
@@ -31,7 +48,7 @@ export default function Conversor(props){
                 <Text style={styles.btnTexto}>Converter</Text>
             </TouchableOpacity>
 
-            <Text style={styles.valorConvertido}>{valorConvertido}</Text>
+            <Text style={styles.valorConvertido}>{mostaValor}</Text>
             
         </View>
     )
